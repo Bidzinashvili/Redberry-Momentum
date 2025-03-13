@@ -10,3 +10,9 @@ export interface Employee {
     department_id: number
     id: number;
 }
+
+export interface Priority {
+    id: number;
+    name: string;
+    icon: string;
+}

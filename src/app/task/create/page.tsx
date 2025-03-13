@@ -1,17 +1,39 @@
 'use client'
-import { useState } from 'react'
-import { Department, Employee } from '@/interfaces/interfaces'
-import DepartmentDropdown from '@/components/DepartmentDropdown'
-import EmployeeDropdown from '@/components/EmployeeDropdown'
-import PriorityDropdown from '@/components/PriorityDropdown'
-import StatusDropdown from '@/components/StatusDropdown'
-import DeadlineSelector from '@/components/DeadlineSelector'
-import SubmitButton from '@/components/SubmitButton'
+import { useEffect, useState } from 'react'
+import { Department, Employee, Priority } from '@/interfaces/interfaces'
+import DepartmentDropdown from '@/components/CreateTask/DepartmentDropdown'
+import EmployeeDropdown from '@/components/CreateTask/EmployeeDropdown'
+import PriorityDropdown from '@/components/CreateTask/PriorityDropdown'
+import StatusDropdown from '@/components/CreateTask/StatusDropdown'
+import DeadlineSelector from '@/components/CreateTask/DeadlineSelector'
+import SubmitButton from '@/components/CreateTask/SubmitButton'
+import NameInput from '@/components/CreateTask/NameInput'
+import Joi from 'joi'
+import useValidation from '@/hooks/useValidation'
+import DescriptionInput from '@/components/CreateTask/DescriptionInput'
 
 export default function page() {
     const [departments, setDepartments] = useState<Department[]>([])
     const [employees, setEmployees] = useState<Employee[]>([])
 
+    const [name, setName] = useState('')
+    const [selectedPriority, setSelectedPriority] = useState<Priority | null>(null)
+    const [description, setDescription] = useState('');
+
+    const schema = Joi.object({
+        name: Joi.string().min(2).max(255).required().messages({
+            'string.min': 'მინიმუმ 2 სიმბოლო',
+            'string.max': 'მაქსიმუმ 255 სიმბოლო',
+            'string.empty': 'სათაური სავალდებულოა'
+        }),
+        description: Joi.string().min(2).max(255).required().messages({
+            'string.min': 'მინიმუმ 2 სიმბოლო',
+            'string.max': 'მაქსიმუმ 255 სიმბოლო',
+            'string.empty': 'აღწერა სავალდებულოა'
+        })
+    });
+
+    const { errors, validateField } = useValidation({ schema, formData: { name, description } });
 
 
     return (
@@ -22,12 +44,7 @@ export default function page() {
                 {/* Name and Department */}
                 <div className='flex gap-[161px]'>
 
-                    <div className='flex flex-col'>
-                        <label>სათაური*</label>
-                        <input className='w-[550px] mt-[6px] h-[45px] px-[10px] rounded-[5px] bg-white border-[1px] border-[#DEE2E6] outline-none' type="text" />
-                        <p className='text-[10px] font-[350] text-[#6C757D] mt-[4px]'>მინიმუმ 2 სიმბოლო</p>
-                        <p className='text-[10px] font-[350] text-[#6C757D] mt-[2px]'>მაქსიმუმ 255 სიმბოლო</p>
-                    </div>
+                    <NameInput name={name} setName={setName} validateField={validateField} error={errors.name} />
 
                     <DepartmentDropdown departments={departments} setDepartments={setDepartments} />
 
@@ -35,13 +52,12 @@ export default function page() {
 
                 {/* Description and Employees */}
                 <div className='flex gap-[161px] mt-[57px]'>
-                    <div className='flex flex-col'>
-                        <label>აღწერა</label>
-                        <textarea className='resize-none mt-[6px] h-[133px] w-[550px] p-[10px] rounded-[5px] bg-white border-[1px] border-[#DEE2E6] outline-none'></textarea>
-                        <p className='text-[10px] font-[350] text-[#6C757D] mt-[4px]'>მინიმუმ 2 სიმბოლო</p>
-                        <p className='text-[10px] font-[350] text-[#6C757D] mt-[2px]'>მაქსიმუმ 255 სიმბოლო</p>
-                    </div>
-
+                    <DescriptionInput
+                        description={description}
+                        setDescription={setDescription}
+                        validateField={validateField}
+                        error={errors.description}
+                    />
                     <EmployeeDropdown employees={employees} setEmployees={setEmployees} />
                 </div>
 
@@ -49,7 +65,7 @@ export default function page() {
                 <div className='flex gap-[161px] mt-[57px]'>
                     <div className='flex gap-[32px] w-[550px]'>
                         <div className='flex-1'>
-                            <PriorityDropdown />
+                            <PriorityDropdown selectedPriority={selectedPriority} setSelectedPriority={setSelectedPriority} />
                         </div>
                         <div className='flex-1'>
                             <StatusDropdown />

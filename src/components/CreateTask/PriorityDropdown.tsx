@@ -1,17 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { ChevronDown } from 'lucide-react';
+import { Priority } from '@/interfaces/interfaces';
 
-interface PriorityType {
-    id: number;
-    name: string;
-    icon: string;
+interface Props {
+    selectedPriority: Priority | null;
+    setSelectedPriority: React.Dispatch<React.SetStateAction<Priority | null>>
 }
 
-export default function PriorityDropdown() {
+export default function PriorityDropdown({ selectedPriority, setSelectedPriority }: Props) {
     const [isOpen, setIsOpen] = useState<boolean>(false);
-    const [priorities, setPriorities] = useState<PriorityType[]>([]);
-    const [selectedPriority, setSelectedPriority] = useState<PriorityType | null>(null);
+    const [priorities, setPriorities] = useState<Priority[]>([]);
     const dropdownRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
@@ -26,9 +25,9 @@ export default function PriorityDropdown() {
                 const data = await response.json();
                 setPriorities(data);
 
-                const highPriority = data.find((priority: PriorityType) => priority.name === 'მაღალი');
-                if (highPriority) {
-                    setSelectedPriority(highPriority);
+                const mediumPriority = data.find((priority: Priority) => priority.name === 'საშუალო');
+                if (mediumPriority) {
+                    setSelectedPriority(mediumPriority);
                 } else if (data.length > 0) {
                     setSelectedPriority(data[0]);
                 }
@@ -62,7 +61,7 @@ export default function PriorityDropdown() {
         }
     };
 
-    const handleSelectOption = (priority: PriorityType): void => {
+    const handleSelectOption = (priority: Priority): void => {
         setSelectedPriority(priority);
         setIsOpen(false);
     };

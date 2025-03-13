@@ -24,7 +24,6 @@ export default function StatusDropdown() {
                 const data = await response.json();
                 setOptions(data);
 
-                // Set the first option as default if there are options and no selection yet
                 if (data.length > 0 && !selectedOption) {
                     setSelectedOption(data[0]);
                 }
