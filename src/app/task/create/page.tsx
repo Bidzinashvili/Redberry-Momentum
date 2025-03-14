@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { schema } from '@/utils/schema'
 import { Department, Employee, Priority } from '@/interfaces/interfaces'
 import DepartmentDropdown from '@/components/CreateTask/DepartmentDropdown'
 import EmployeeDropdown from '@/components/CreateTask/EmployeeDropdown'
@@ -8,7 +9,6 @@ import StatusDropdown from '@/components/CreateTask/StatusDropdown'
 import DeadlineSelector from '@/components/CreateTask/DeadlineSelector'
 import SubmitButton from '@/components/CreateTask/SubmitButton'
 import NameInput from '@/components/CreateTask/NameInput'
-import Joi from 'joi'
 import useValidation from '@/hooks/useValidation'
 import DescriptionInput from '@/components/CreateTask/DescriptionInput'
 
@@ -19,22 +19,10 @@ export default function page() {
     const [name, setName] = useState('')
     const [selectedPriority, setSelectedPriority] = useState<Priority | null>(null)
     const [description, setDescription] = useState('');
-
-    const schema = Joi.object({
-        name: Joi.string().min(2).max(255).required().messages({
-            'string.min': 'მინიმუმ 2 სიმბოლო',
-            'string.max': 'მაქსიმუმ 255 სიმბოლო',
-            'string.empty': 'სათაური სავალდებულოა'
-        }),
-        description: Joi.string().min(2).max(255).required().messages({
-            'string.min': 'მინიმუმ 2 სიმბოლო',
-            'string.max': 'მაქსიმუმ 255 სიმბოლო',
-            'string.empty': 'აღწერა სავალდებულოა'
-        })
-    });
+    const [department, setDepartment] = useState<Department | null>(null)
+    const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null)
 
     const { errors, validateField } = useValidation({ schema, formData: { name, description } });
-
 
     return (
         <div className='mx-[120px] mt-[40px]'>
@@ -46,7 +34,7 @@ export default function page() {
 
                     <NameInput name={name} setName={setName} validateField={validateField} error={errors.name} />
 
-                    <DepartmentDropdown departments={departments} setDepartments={setDepartments} />
+                    <DepartmentDropdown department={department} setDepartment={setDepartment} departments={departments} setDepartments={setDepartments} />
 
                 </div>
 
@@ -58,7 +46,7 @@ export default function page() {
                         validateField={validateField}
                         error={errors.description}
                     />
-                    <EmployeeDropdown employees={employees} setEmployees={setEmployees} />
+                    <EmployeeDropdown selectedEmployee={selectedEmployee} setSelectedEmployee={setSelectedEmployee} department={department} employees={employees} setEmployees={setEmployees} />
                 </div>
 
                 {/* Priority, Status and Deadline */}
