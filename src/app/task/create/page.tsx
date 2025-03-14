@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { schema } from '@/utils/schema'
-import { Department, Employee, Priority } from '@/interfaces/interfaces'
+import { Department, Employee, Priority, Status } from '@/interfaces/interfaces'
 import DepartmentDropdown from '@/components/CreateTask/DepartmentDropdown'
 import EmployeeDropdown from '@/components/CreateTask/EmployeeDropdown'
 import PriorityDropdown from '@/components/CreateTask/PriorityDropdown'
@@ -21,8 +21,19 @@ export default function page() {
     const [description, setDescription] = useState('');
     const [department, setDepartment] = useState<Department | null>(null)
     const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null)
+    const [deadline, setDeadline] = useState<string>('');
+    const [selectedStatus, setSelectedStatus] = useState<Status | null>(null);
 
-    const { errors, validateField } = useValidation({ schema, formData: { name, description } });
+    const formData = {
+        name,
+        description,
+        deadline
+    };
+
+    const { errors, validateField, validateForm } = useValidation({
+        schema,
+        formData
+    });
 
     return (
         <div className='mx-[120px] mt-[40px]'>
@@ -31,11 +42,18 @@ export default function page() {
 
                 {/* Name and Department */}
                 <div className='flex gap-[161px]'>
-
-                    <NameInput name={name} setName={setName} validateField={validateField} error={errors.name} />
-
-                    <DepartmentDropdown department={department} setDepartment={setDepartment} departments={departments} setDepartments={setDepartments} />
-
+                    <NameInput
+                        name={name}
+                        setName={setName}
+                        validateField={validateField}
+                        error={errors.name}
+                    />
+                    <DepartmentDropdown
+                        department={department}
+                        setDepartment={setDepartment}
+                        departments={departments}
+                        setDepartments={setDepartments}
+                    />
                 </div>
 
                 {/* Description and Employees */}
@@ -46,21 +64,35 @@ export default function page() {
                         validateField={validateField}
                         error={errors.description}
                     />
-                    <EmployeeDropdown selectedEmployee={selectedEmployee} setSelectedEmployee={setSelectedEmployee} department={department} employees={employees} setEmployees={setEmployees} />
+                    <EmployeeDropdown
+                        selectedEmployee={selectedEmployee}
+                        setSelectedEmployee={setSelectedEmployee}
+                        department={department}
+                        employees={employees}
+                        setEmployees={setEmployees}
+                    />
                 </div>
 
                 {/* Priority, Status and Deadline */}
                 <div className='flex gap-[161px] mt-[57px]'>
                     <div className='flex gap-[32px] w-[550px]'>
                         <div className='flex-1'>
-                            <PriorityDropdown selectedPriority={selectedPriority} setSelectedPriority={setSelectedPriority} />
+                            <PriorityDropdown
+                                selectedPriority={selectedPriority}
+                                setSelectedPriority={setSelectedPriority}
+                            />
                         </div>
                         <div className='flex-1'>
-                            <StatusDropdown />
+                            <StatusDropdown selectedStatus={selectedStatus} setSelectedStatus={setSelectedStatus} />
                         </div>
                     </div>
                     <div className='w-[318px]'>
-                        <DeadlineSelector />
+                        <DeadlineSelector
+                            value={deadline}
+                            onChange={(date) => setDeadline(date)}
+                            validateField={validateField}
+                            error={errors.deadline}
+                        />
                     </div>
                 </div>
 
@@ -68,7 +100,7 @@ export default function page() {
                 <div className='flex w-[1261px] mt-[145px] justify-end'>
                     <SubmitButton />
                 </div>
-            </div >
+            </div>
         </div>
     )
 }

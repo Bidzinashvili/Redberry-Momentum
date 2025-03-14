@@ -19,3 +19,8 @@ export interface Priority {
     name: string;
     icon: string;
 }
+
+export interface Status {
+    id: number;
+    name: string;
+}

@@ -1,15 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { Status } from '@/interfaces/interfaces';
 
-interface StatusOption {
-    id: number;
-    name: string;
+interface Props {
+    selectedStatus: Status | null;
+    setSelectedStatus: React.Dispatch<React.SetStateAction<Status | null>>
 }
 
-export default function StatusDropdown() {
+export default function StatusDropdown({ selectedStatus, setSelectedStatus }: Props) {
     const [isOpen, setIsOpen] = useState<boolean>(false);
-    const [selectedOption, setSelectedOption] = useState<StatusOption | null>(null);
-    const [options, setOptions] = useState<StatusOption[]>([]);
+    const [options, setOptions] = useState<Status[]>([]);
     const dropdownRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
@@ -24,8 +24,8 @@ export default function StatusDropdown() {
                 const data = await response.json();
                 setOptions(data);
 
-                if (data.length > 0 && !selectedOption) {
-                    setSelectedOption(data[0]);
+                if (data.length > 0 && !selectedStatus) {
+                    setSelectedStatus(data[0]);
                 }
 
             } catch (err) {
@@ -57,8 +57,8 @@ export default function StatusDropdown() {
         }
     };
 
-    const handleSelectOption = (option: StatusOption): void => {
-        setSelectedOption(option);
+    const handleSelectOption = (option: Status): void => {
+        setSelectedStatus(option);
         setIsOpen(false);
     };
 
@@ -77,7 +77,7 @@ export default function StatusDropdown() {
                     aria-labelledby="status-label"
                 >
                     <div className="flex items-center">
-                        <span>{selectedOption?.name || 'აირჩიეთ სტატუსი'}</span>
+                        <span>{selectedStatus?.name || 'აირჩიეთ სტატუსი'}</span>
                     </div>
                     <ChevronDown />
                 </div>
@@ -98,7 +98,7 @@ export default function StatusDropdown() {
                                     }
                                 }}
                                 role="option"
-                                aria-selected={selectedOption?.id === option.id}
+                                aria-selected={selectedStatus?.id === option.id}
                                 tabIndex={0}
                             >
                                 <span>{option.name}</span>
