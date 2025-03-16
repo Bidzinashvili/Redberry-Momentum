@@ -1,14 +1,14 @@
 import Image from 'next/image';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 
 interface DatePickerProps {
-    onChange?: (date: string) => void;
     value?: string;
     error?: string;
     validateField?: (name: string, value: any) => void;
+    setDeadline: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export default function DeadlineSelector({ onChange, value, error, validateField }: DatePickerProps) {
+export default function DeadlineSelector({ value, error, validateField, setDeadline }: DatePickerProps) {
     const getTomorrowDate = (): string => {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
@@ -22,15 +22,32 @@ export default function DeadlineSelector({ onChange, value, error, validateField
         return value || getTomorrowDate();
     };
 
-    const [selectedDate, setSelectedDate] = useState<string>(getInitialDate());
+    // Track the current date value internally
+    const [currentDate, setCurrentDate] = useState<string>(getInitialDate());
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const datePickerRef = useRef<HTMLDivElement | null>(null);
 
+    // Sync with external value when it changes
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('deadline', selectedDate);
+        if (value) {
+            setCurrentDate(value);
         }
-    }, [selectedDate]);
+    }, [value]);
+
+    // Initialize deadline if it's not set
+    useEffect(() => {
+        if (!value) {
+            const initialDate = getInitialDate();
+            setDeadline(initialDate);
+            setCurrentDate(initialDate);
+        }
+    }, [value, setDeadline]);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined' && currentDate) {
+            localStorage.setItem('deadline', currentDate);
+        }
+    }, [currentDate]);
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent): void {
@@ -50,11 +67,8 @@ export default function DeadlineSelector({ onChange, value, error, validateField
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newDate = e.target.value;
-        setSelectedDate(newDate);
-
-        if (onChange) {
-            onChange(newDate);
-        }
+        setCurrentDate(newDate);
+        setDeadline(newDate);
 
         if (validateField) {
             validateField('deadline', newDate);
@@ -86,7 +100,7 @@ export default function DeadlineSelector({ onChange, value, error, validateField
         }
     };
 
-    const displayValue = formatDisplayDate(selectedDate);
+    const displayValue = formatDisplayDate(currentDate);
 
     return (
         <div className="flex flex-col" ref={datePickerRef}>
@@ -117,7 +131,7 @@ export default function DeadlineSelector({ onChange, value, error, validateField
                     <input
                         type="date"
                         className="p-2"
-                        value={selectedDate}
+                        value={currentDate} // Using currentDate instead of value
                         min={minDate}
                         onChange={handleDateChange}
                         onBlur={() => setIsOpen(false)}

@@ -30,7 +30,7 @@ export default function page() {
         deadline
     };
 
-    const { errors, validateField, validateForm } = useValidation({
+    const { errors, validateField } = useValidation({
         schema,
         formData
     });
@@ -89,16 +89,16 @@ export default function page() {
                     <div className='w-[318px]'>
                         <DeadlineSelector
                             value={deadline}
-                            onChange={(date) => setDeadline(date)}
                             validateField={validateField}
                             error={errors.deadline}
+                            setDeadline={setDeadline}
                         />
                     </div>
                 </div>
 
                 {/* Submit Button */}
                 <div className='flex w-[1261px] mt-[145px] justify-end'>
-                    <SubmitButton />
+                    <SubmitButton name={name} description={description} due_date={deadline} priority_id={selectedPriority?.id || null} employee_id={selectedEmployee?.id || null} status_id={selectedStatus?.id || null} />
                 </div>
             </div>
         </div>
