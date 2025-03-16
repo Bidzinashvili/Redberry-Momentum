@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 interface Props {
     description: string;
@@ -8,9 +8,15 @@ interface Props {
 }
 
 export default function DescriptionInput({ description, setDescription, validateField, error }: Props) {
+
+    useEffect(() => {
+        setDescription(localStorage.getItem('description') || '')
+    }, [])
+
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const val = e.target.value;
         setDescription(val);
+        localStorage.setItem('description', val)
         validateField('description', val);
     };
 

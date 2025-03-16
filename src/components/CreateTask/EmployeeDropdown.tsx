@@ -32,6 +32,17 @@ export default function EmployeeDropdown({ department, employees, setEmployees, 
 
                 setEmployees(filteredEmployees);
 
+                const storedEmployeeId = localStorage.getItem('employee');
+
+                if (storedEmployeeId) {
+                    const storedEmployee = filteredEmployees.find((emp: Employee) => emp.id.toString() === storedEmployeeId);
+
+                    if (storedEmployee) {
+                        setSelectedEmployee(storedEmployee);
+                        return;
+                    }
+                }
+
                 if (filteredEmployees.length > 0) {
                     setSelectedEmployee(filteredEmployees[0]);
                 } else {
@@ -68,6 +79,7 @@ export default function EmployeeDropdown({ department, employees, setEmployees, 
 
     const handleSelectOption = (employee: Employee): void => {
         setSelectedEmployee(employee);
+        localStorage.setItem('employee', employee.id.toString());
         setIsOpen(false);
     };
 

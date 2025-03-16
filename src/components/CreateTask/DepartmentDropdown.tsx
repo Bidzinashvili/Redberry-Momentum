@@ -15,12 +15,19 @@ export default function DepartmentDropdown({ department, setDepartment, departme
     const dropdownRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
-        console.log(department);
-    }, [department]);
-
-    useEffect(() => {
         axios.get('https://momentum.redberryinternship.ge/api/departments')
-            .then((res) => setDepartments(res.data))
+            .then((res) => {
+                setDepartments(res.data)
+
+                const savedDepartmentName = localStorage.getItem('option');
+                if (savedDepartmentName) {
+                    const foundDepartment = res.data.find((dept: Department) => dept.name === savedDepartmentName);
+                    if (foundDepartment) {
+                        setDepartment(foundDepartment);
+                    }
+                }
+
+            })
             .catch((err) => console.log(err));
     }, []);
 
@@ -47,6 +54,7 @@ export default function DepartmentDropdown({ department, setDepartment, departme
 
     const handleSelectOption = (option: Department): void => {
         setDepartment(option);
+        localStorage.setItem('option', option.name)
         setIsOpen(false);
     };
 

@@ -4,7 +4,7 @@ import { Status } from '@/interfaces/interfaces';
 
 interface Props {
     selectedStatus: Status | null;
-    setSelectedStatus: React.Dispatch<React.SetStateAction<Status | null>>
+    setSelectedStatus: React.Dispatch<React.SetStateAction<Status | null>>;
 }
 
 export default function StatusDropdown({ selectedStatus, setSelectedStatus }: Props) {
@@ -24,6 +24,16 @@ export default function StatusDropdown({ selectedStatus, setSelectedStatus }: Pr
                 const data = await response.json();
                 setOptions(data);
 
+                const storedStatusId = localStorage.getItem('status');
+
+                if (storedStatusId) {
+                    const storedStatus = data.find((status: Status) => status.id.toString() === storedStatusId);
+                    if (storedStatus) {
+                        setSelectedStatus(storedStatus);
+                        return;
+                    }
+                }
+
                 if (data.length > 0 && !selectedStatus) {
                     setSelectedStatus(data[0]);
                 }
@@ -34,7 +44,7 @@ export default function StatusDropdown({ selectedStatus, setSelectedStatus }: Pr
         };
 
         fetchStatuses();
-    }, []);
+    }, [setSelectedStatus]);
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent): void {
@@ -59,6 +69,7 @@ export default function StatusDropdown({ selectedStatus, setSelectedStatus }: Pr
 
     const handleSelectOption = (option: Status): void => {
         setSelectedStatus(option);
+        localStorage.setItem('status', option.id.toString());
         setIsOpen(false);
     };
 

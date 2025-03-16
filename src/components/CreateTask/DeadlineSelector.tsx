@@ -9,9 +9,28 @@ interface DatePickerProps {
 }
 
 export default function DeadlineSelector({ onChange, value, error, validateField }: DatePickerProps) {
-    const [selectedDate, setSelectedDate] = useState<string>(value || '');
+    const getTomorrowDate = (): string => {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        return tomorrow.toISOString().split('T')[0];
+    };
+
+    const getInitialDate = (): string => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('deadline') || value || getTomorrowDate();
+        }
+        return value || getTomorrowDate();
+    };
+
+    const [selectedDate, setSelectedDate] = useState<string>(getInitialDate());
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const datePickerRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('deadline', selectedDate);
+        }
+    }, [selectedDate]);
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent): void {
@@ -33,16 +52,12 @@ export default function DeadlineSelector({ onChange, value, error, validateField
         const newDate = e.target.value;
         setSelectedDate(newDate);
 
-        const selectedDateObj = new Date(newDate);
-        const currentDate = new Date();
-        currentDate.setHours(0, 0, 0, 0);
-
         if (onChange) {
             onChange(newDate);
         }
 
         if (validateField) {
-            console.log(validateField('deadline', newDate))
+            validateField('deadline', newDate);
         }
     };
 

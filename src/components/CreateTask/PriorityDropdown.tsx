@@ -5,7 +5,7 @@ import { Priority } from '@/interfaces/interfaces';
 
 interface Props {
     selectedPriority: Priority | null;
-    setSelectedPriority: React.Dispatch<React.SetStateAction<Priority | null>>
+    setSelectedPriority: React.Dispatch<React.SetStateAction<Priority | null>>;
 }
 
 export default function PriorityDropdown({ selectedPriority, setSelectedPriority }: Props) {
@@ -25,20 +25,31 @@ export default function PriorityDropdown({ selectedPriority, setSelectedPriority
                 const data = await response.json();
                 setPriorities(data);
 
+                // Retrieve saved priority from localStorage
+                const storedPriorityId = localStorage.getItem('priority');
+
+                if (storedPriorityId) {
+                    const storedPriority = data.find((priority: Priority) => priority.id.toString() === storedPriorityId);
+                    if (storedPriority) {
+                        setSelectedPriority(storedPriority);
+                        return;
+                    }
+                }
+
+                // Default to 'საშუალო' if available, otherwise first item
                 const mediumPriority = data.find((priority: Priority) => priority.name === 'საშუალო');
                 if (mediumPriority) {
                     setSelectedPriority(mediumPriority);
                 } else if (data.length > 0) {
                     setSelectedPriority(data[0]);
                 }
-
             } catch (err) {
                 console.error('Error fetching priorities:', err);
             }
         };
 
         fetchPriorities();
-    }, []);
+    }, [setSelectedPriority]);
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent): void {
@@ -63,6 +74,7 @@ export default function PriorityDropdown({ selectedPriority, setSelectedPriority
 
     const handleSelectOption = (priority: Priority): void => {
         setSelectedPriority(priority);
+        localStorage.setItem('priority', priority.id.toString()); // Save to localStorage
         setIsOpen(false);
     };
 

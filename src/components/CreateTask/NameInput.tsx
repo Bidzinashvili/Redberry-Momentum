@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 interface Props {
     name: string;
@@ -8,9 +8,15 @@ interface Props {
 }
 
 export default function NameInput({ name, setName, validateField, error }: Props) {
+
+    useEffect(() => {
+        setName(localStorage.getItem('name') || '')
+    }, [])
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value;
         setName(val);
+        localStorage.setItem('name', val)
         validateField('name', val);
     };
 
