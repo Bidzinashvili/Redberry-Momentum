@@ -1,32 +1,41 @@
 import React, { useEffect } from 'react'
 
 interface Props {
-    name: string;
-    setName: React.Dispatch<React.SetStateAction<string>>;
-    validateField: (name: string, value: any) => void;
+    value: string;
+    setValue: React.Dispatch<React.SetStateAction<string>>;
+    validateField: (field: string, value: any) => void;
     error?: string;
+    label: string;
+    storageKey?: string;
+    inputName: string;
+    labelSize: 14 | 16;
 }
 
-export default function NameInput({ name, setName, validateField, error }: Props) {
+export default function NormalInput({ value, setValue, validateField, error, label, storageKey, inputName, labelSize }: Props) {
 
     useEffect(() => {
-        setName(localStorage.getItem('name') || '')
-    }, [])
+        if (storageKey) {
+            setValue(localStorage.getItem(storageKey) || '')
+        }
+    }, [storageKey, setValue]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value;
-        setName(val);
-        localStorage.setItem('name', val)
-        validateField('name', val);
+        setValue(val);
+        if (storageKey) {
+            localStorage.setItem(storageKey, val);
+        }
+        validateField(inputName, val);
     };
 
     return (
         <div className='flex flex-col'>
-            <label>სათაური*</label>
+            <label className={`text-[${labelSize}px]`}>{label}*</label>
             <input
-                value={name}
+                name={inputName}
+                value={value}
                 onChange={handleChange}
-                className={`w-[550px] mt-[6px] h-[45px] px-[10px] rounded-[5px] bg-white border-[1px] outline-none 
+                className={`w-full mt-[6px] h-[45px] px-[10px] rounded-[5px] bg-white border-[1px] outline-none 
                     ${error ? 'border-red-500' : 'border-[#DEE2E6]'}`}
                 type="text"
             />

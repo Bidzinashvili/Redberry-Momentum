@@ -4,32 +4,44 @@ import { Department } from '@/interfaces/interfaces';
 import axios from 'axios';
 
 interface Props {
-    departments: Department[]
-    setDepartments: React.Dispatch<React.SetStateAction<Department[]>>
+    departments: Department[];
+    setDepartments: React.Dispatch<React.SetStateAction<Department[]>>;
     department: Department | null;
-    setDepartment: React.Dispatch<React.SetStateAction<Department | null>>
+    setDepartment: React.Dispatch<React.SetStateAction<Department | null>>;
+    labelSize: 16 | 14;
+    displayPlaceholder: boolean;
+    storageKey?: string;
 }
 
-export default function DepartmentDropdown({ department, setDepartment, departments, setDepartments }: Props) {
+export default function DepartmentDropdown({
+    department,
+    setDepartment,
+    departments,
+    setDepartments,
+    displayPlaceholder,
+    labelSize,
+    storageKey
+}: Props) {
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const dropdownRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         axios.get('https://momentum.redberryinternship.ge/api/departments')
             .then((res) => {
-                setDepartments(res.data)
+                setDepartments(res.data);
 
-                const savedDepartmentName = localStorage.getItem('option');
-                if (savedDepartmentName) {
-                    const foundDepartment = res.data.find((dept: Department) => dept.name === savedDepartmentName);
-                    if (foundDepartment) {
-                        setDepartment(foundDepartment);
+                if (storageKey) {
+                    const savedDepartmentName = localStorage.getItem(storageKey);
+                    if (savedDepartmentName) {
+                        const foundDepartment = res.data.find((dept: Department) => dept.name === savedDepartmentName);
+                        if (foundDepartment) {
+                            setDepartment(foundDepartment);
+                        }
                     }
                 }
-
             })
             .catch((err) => console.log(err));
-    }, []);
+    }, [storageKey]);
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent): void {
@@ -54,16 +66,18 @@ export default function DepartmentDropdown({ department, setDepartment, departme
 
     const handleSelectOption = (option: Department): void => {
         setDepartment(option);
-        localStorage.setItem('option', option.name)
+        if (storageKey) {
+            localStorage.setItem(storageKey, option.name);
+        }
         setIsOpen(false);
     };
 
     return (
         <div className="flex flex-col">
-            <label className="mb-1">დეპარტამენტი*</label>
+            <label className={`mb-1 text-[${labelSize}px]`}>დეპარტამენტი*</label>
             <div className="relative" ref={dropdownRef}>
                 <div
-                    className="flex items-center justify-between mt-[6px] h-[45px] px-[10px] rounded-[5px] bg-white border-[1px] border-[#DEE2E6] outline-none text-[14px] font-[300] text-[#0D0F10] cursor-pointer w-[550px]"
+                    className="flex items-center justify-between mt-[6px] h-[45px] px-[10px] rounded-[5px] bg-white border-[1px] border-[#DEE2E6] outline-none text-[14px] font-[300] text-[#0D0F10] cursor-pointer w-full"
                     onClick={() => setIsOpen(!isOpen)}
                     onKeyDown={handleKeyDown}
                     tabIndex={0}
@@ -73,7 +87,9 @@ export default function DepartmentDropdown({ department, setDepartment, departme
                     aria-labelledby="department-label"
                 >
                     <div className="flex items-center">
-                        <span>{department?.name || 'აირჩიეთ დეპარტამენტი'}</span>
+                        <span>
+                            {department?.name ? department.name : displayPlaceholder ? 'აირჩიეთ დეპარტამენტი' : ''}
+                        </span>
                     </div>
                     <ChevronDown />
                 </div>

@@ -1,16 +1,16 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { schema } from '@/utils/schema'
+import { taskSchema } from '@/utils/schema'
 import { Department, Employee, Priority, Status } from '@/interfaces/interfaces'
-import DepartmentDropdown from '@/components/CreateTask/DepartmentDropdown'
-import EmployeeDropdown from '@/components/CreateTask/EmployeeDropdown'
-import PriorityDropdown from '@/components/CreateTask/PriorityDropdown'
-import StatusDropdown from '@/components/CreateTask/StatusDropdown'
-import DeadlineSelector from '@/components/CreateTask/DeadlineSelector'
-import SubmitButton from '@/components/CreateTask/SubmitButton'
-import NameInput from '@/components/CreateTask/NameInput'
+import DepartmentDropdown from '@/components/TaskCreation/DepartmentDropdown'
+import EmployeeDropdown from '@/components/TaskCreation/EmployeeDropdown'
+import PriorityDropdown from '@/components/TaskCreation/PriorityDropdown'
+import StatusDropdown from '@/components/TaskCreation/StatusDropdown'
+import DeadlineSelector from '@/components/TaskCreation/DeadlineSelector'
+import SubmitButton from '@/components/TaskCreation/SubmitButton'
 import useValidation from '@/hooks/useValidation'
-import DescriptionInput from '@/components/CreateTask/DescriptionInput'
+import DescriptionInput from '@/components/TaskCreation/DescriptionInput'
+import NormalInput from '@/components/TaskCreation/NormalInput'
 
 export default function page() {
     const [departments, setDepartments] = useState<Department[]>([])
@@ -31,7 +31,7 @@ export default function page() {
     };
 
     const { errors, validateField } = useValidation({
-        schema,
+        schema: taskSchema,
         formData
     });
 
@@ -42,18 +42,29 @@ export default function page() {
 
                 {/* Name and Department */}
                 <div className='flex gap-[161px]'>
-                    <NameInput
-                        name={name}
-                        setName={setName}
-                        validateField={validateField}
-                        error={errors.name}
-                    />
-                    <DepartmentDropdown
-                        department={department}
-                        setDepartment={setDepartment}
-                        departments={departments}
-                        setDepartments={setDepartments}
-                    />
+                    <div className='w-[550px]'>
+                        <NormalInput
+                            labelSize={16}
+                            label='სათაური'
+                            value={name}
+                            inputName='name'
+                            setValue={setName}
+                            validateField={validateField}
+                            error={errors.name}
+                            storageKey='taskName'
+                        />
+                    </div>
+                    <div className='w-[550px]'>
+                        <DepartmentDropdown
+                            displayPlaceholder={true}
+                            labelSize={16}
+                            department={department}
+                            setDepartment={setDepartment}
+                            departments={departments}
+                            setDepartments={setDepartments}
+                            storageKey='selectedDepartment'
+                        />
+                    </div>
                 </div>
 
                 {/* Description and Employees */}
@@ -83,7 +94,10 @@ export default function page() {
                             />
                         </div>
                         <div className='flex-1'>
-                            <StatusDropdown selectedStatus={selectedStatus} setSelectedStatus={setSelectedStatus} />
+                            <StatusDropdown
+                                selectedStatus={selectedStatus}
+                                setSelectedStatus={setSelectedStatus}
+                            />
                         </div>
                     </div>
                     <div className='w-[318px]'>
@@ -98,7 +112,14 @@ export default function page() {
 
                 {/* Submit Button */}
                 <div className='flex w-[1261px] mt-[145px] justify-end'>
-                    <SubmitButton name={name} description={description} due_date={deadline} priority_id={selectedPriority?.id || null} employee_id={selectedEmployee?.id || null} status_id={selectedStatus?.id || null} />
+                    <SubmitButton
+                        name={name}
+                        description={description}
+                        due_date={deadline}
+                        priority_id={selectedPriority?.id || null}
+                        employee_id={selectedEmployee?.id || null}
+                        status_id={selectedStatus?.id || null}
+                    />
                 </div>
             </div>
         </div>
