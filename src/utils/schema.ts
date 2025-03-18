@@ -52,7 +52,8 @@ export const employeeSchema = Joi.object({
             return value;
         })
         .messages({
-            'file.tooLarge': 'ფოტოს ზომა არ უნდა აღემატებოდეს 600KB-ს'
+            'file.tooLarge': 'ფოტოს ზომა არ უნდა აღემატებოდეს 600KB-ს',
+            'file.empty': 'ფოტო სავალდებულოა'
         }),
     department: Joi.object()
         .required()
@@ -60,5 +61,4 @@ export const employeeSchema = Joi.object({
             'any.required': 'დეპარტამენტი სავალდებულოა',
             'object.base': 'დეპარტამენტი სავალდებულოა'
         })
-    // empty
 });
