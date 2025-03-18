@@ -7,23 +7,24 @@ import PhotoUploader from './PhotoUploader'
 import DepartmentDropdown from '../TaskCreation/DepartmentDropdown'
 import { Department } from '@/interfaces/interfaces'
 import Buttons from './Buttons'
+import axios from 'axios'
 
 interface Props {
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
-    onEmployeeAdded?: (employee: any) => void
 }
 
-export default function EmployeeModal({ setIsOpen, onEmployeeAdded }: Props) {
+export default function EmployeeModal({ setIsOpen }: Props) {
     const [firstName, setFirstName] = useState('')
     const [lastName, setLastName] = useState('')
     const [photo, setPhoto] = useState('')
     const [department, setDepartment] = useState<Department | null>(null)
     const [departments, setDepartments] = useState<Department[]>([])
-    const [isSubmitting, setIsSubmitting] = useState(false)
 
     const formData = {
         firstName,
-        lastName
+        lastName,
+        photo,
+        department
     };
 
     const { errors, validateField, validateForm } = useValidation({
@@ -31,6 +32,41 @@ export default function EmployeeModal({ setIsOpen, onEmployeeAdded }: Props) {
         formData
     });
 
+    const handleSubmit = async () => {
+        if (!department) return;
+
+        if (validateForm()) {
+            try {
+                const formData = new FormData();
+                formData.append('name', firstName);
+                formData.append('surname', lastName);
+                formData.append('department_id', String(department.id));
+
+                if (photo && photo.startsWith('data:image')) {
+                    const blob = await fetch(photo).then((res) => res.blob());
+                    formData.append('avatar', blob, 'avatar.jpg');
+                } else if (photo) {
+                    formData.append('avatar', photo);
+                }
+
+                const response = await axios.post(
+                    'https://momentum.redberryinternship.ge/api/employees',
+                    formData,
+                    {
+                        headers: {
+                            Authorization: 'Bearer 9e68b0cd-e37e-4a1b-a82d-a5e71bcdcf90',
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    }
+                );
+
+                console.log('Success:', response.data);
+                setIsOpen(false);
+            } catch (err: any) {
+                console.error('Error:', err.response?.data || err.message);
+            }
+        }
+    };
 
     return (
         <div
@@ -71,7 +107,12 @@ export default function EmployeeModal({ setIsOpen, onEmployeeAdded }: Props) {
                 </div>
 
                 <div className='w-full'>
-                    <PhotoUploader value={photo} setValue={setPhoto} />
+                    <PhotoUploader
+                        value={photo}
+                        setValue={setPhoto}
+                        validateField={validateField}
+                        error={errors.photo}
+                    />
                 </div>
 
                 <div className='w-full'>
@@ -80,15 +121,19 @@ export default function EmployeeModal({ setIsOpen, onEmployeeAdded }: Props) {
                             labelSize={14}
                             displayPlaceholder={false}
                             department={department}
-                            setDepartment={setDepartment}
+                            setDepartment={(value) => {
+                                setDepartment(value);
+                                validateField('department', value);
+                            }}
                             departments={departments}
                             setDepartments={setDepartments}
+                            error={errors.department}
                         />
                     </div>
                 </div>
 
                 <div className='w-full mt-7'>
-                    <Buttons />
+                    <Buttons onSubmit={handleSubmit} />
                 </div>
             </div>
         </div>

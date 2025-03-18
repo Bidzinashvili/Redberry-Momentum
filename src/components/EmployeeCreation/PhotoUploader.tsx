@@ -1,35 +1,44 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 
 interface Props {
     value: string;
     setValue: React.Dispatch<React.SetStateAction<string>>;
+    validateField?: (name: string, value: any) => void;
+    error?: string;
 }
 
-export default function PhotoUploader({ value, setValue }: Props) {
+export default function PhotoUploader({ value, setValue, validateField, error: externalError }: Props) {
     const [preview, setPreview] = useState<string>(value);
-    const [error, setError] = useState<string>('');
+    const [localError, setLocalError] = useState<string>('');
+
+    useEffect(() => {
+        setPreview(value);
+    }, [value]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
 
         if (file) {
             if (file.size > 600 * 1024) {
-                setError('ფაილის ზომა უნდა იყოს 600KB-ზე ნაკლები.');
+                setLocalError('ფაილის ზომა უნდა იყოს 600KB-ზე ნაკლები.');
                 setTimeout(() => {
-                    setError('')
-                }, 3000)
+                    setLocalError('');
+                }, 3000);
                 return;
             }
 
-            setError('');
+            setLocalError('');
             const reader = new FileReader();
             reader.onloadend = () => {
                 const imageUrl = reader.result as string;
                 setPreview(imageUrl);
                 setValue(imageUrl);
+                if (validateField) {
+                    validateField('photo', imageUrl);
+                }
             };
             reader.readAsDataURL(file);
         }
@@ -38,8 +47,13 @@ export default function PhotoUploader({ value, setValue }: Props) {
     const handleRemove = () => {
         setPreview('');
         setValue('');
-        setError('');
+        setLocalError('');
+        if (validateField) {
+            validateField('photo', '');
+        }
     };
+
+    const displayError = externalError || localError;
 
     return (
         <div className="flex flex-col items-center">
@@ -68,7 +82,7 @@ export default function PhotoUploader({ value, setValue }: Props) {
                     </label>
                 )}
             </div>
-            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+            {displayError && <p className="text-red-500 text-sm mt-2">{displayError}</p>}
         </div>
     );
 }

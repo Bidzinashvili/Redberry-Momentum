@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Department } from '@/interfaces/interfaces';
 import axios from 'axios';
@@ -7,23 +7,35 @@ interface Props {
     departments: Department[];
     setDepartments: React.Dispatch<React.SetStateAction<Department[]>>;
     department: Department | null;
-    setDepartment: React.Dispatch<React.SetStateAction<Department | null>>;
+    setDepartment: (value: Department | null) => void;
     labelSize: 16 | 14;
     displayPlaceholder: boolean;
     storageKey?: string;
+    validateField?: (name: string, value: any) => void;
+    error?: string;
 }
 
 export default function DepartmentDropdown({
     department,
+    setDepartments,
     setDepartment,
     departments,
-    setDepartments,
     displayPlaceholder,
     labelSize,
-    storageKey
+    storageKey,
+    validateField,
+    error
 }: Props) {
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+    const setDepartmentWithValidation = useCallback(
+        (value: Department | null) => {
+            setDepartment(value);
+            validateField?.('department', value);
+        },
+        [setDepartment, validateField]
+    );
 
     useEffect(() => {
         axios.get('https://momentum.redberryinternship.ge/api/departments')
@@ -35,13 +47,13 @@ export default function DepartmentDropdown({
                     if (savedDepartmentName) {
                         const foundDepartment = res.data.find((dept: Department) => dept.name === savedDepartmentName);
                         if (foundDepartment) {
-                            setDepartment(foundDepartment);
+                            setDepartmentWithValidation(foundDepartment);
                         }
                     }
                 }
             })
             .catch((err) => console.log(err));
-    }, [storageKey]);
+    }, [storageKey, setDepartments, setDepartmentWithValidation]);
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent): void {
@@ -65,7 +77,7 @@ export default function DepartmentDropdown({
     };
 
     const handleSelectOption = (option: Department): void => {
-        setDepartment(option);
+        setDepartmentWithValidation(option);
         if (storageKey) {
             localStorage.setItem(storageKey, option.name);
         }
@@ -77,7 +89,8 @@ export default function DepartmentDropdown({
             <label className={`mb-1 text-[${labelSize}px]`}>დეპარტამენტი*</label>
             <div className="relative" ref={dropdownRef}>
                 <div
-                    className="flex items-center justify-between mt-[6px] h-[45px] px-[10px] rounded-[5px] bg-white border-[1px] border-[#DEE2E6] outline-none text-[14px] font-[300] text-[#0D0F10] cursor-pointer w-full"
+                    className={`flex items-center justify-between mt-[6px] h-[45px] px-[10px] rounded-[5px] bg-white border-[1px] ${error ? 'border-red-500' : 'border-[#DEE2E6]'
+                        } outline-none text-[14px] font-[300] text-[#0D0F10] cursor-pointer w-full`}
                     onClick={() => setIsOpen(!isOpen)}
                     onKeyDown={handleKeyDown}
                     tabIndex={0}
@@ -96,7 +109,7 @@ export default function DepartmentDropdown({
 
                 {isOpen && (
                     <div
-                        className="absolute w-full mt-1 bg-white border border-[#DEE2E6] rounded-[5px] shadow-lg z-10"
+                        className="absolute w-full mt-1 bg-white border border-[#DEE2E6] rounded-[5px] shadow-lg z-10 max-h-[200px] overflow-y-auto"
                         role="listbox"
                     >
                         {departments.map((option) => (
@@ -119,6 +132,9 @@ export default function DepartmentDropdown({
                     </div>
                 )}
             </div>
+            {error && (
+                <span className="text-red-500 text-[12px] mt-1">{error}</span>
+            )}
         </div>
     );
 }
