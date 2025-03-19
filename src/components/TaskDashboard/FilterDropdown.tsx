@@ -27,6 +27,15 @@ export default function FilterDropdown({
                         >
                             {item.checked && <Check size={16} color="black" />}
                         </div>
+
+                        {filterType === 'employee' && (
+                            <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs overflow-hidden">
+                                {item.avatar && (
+                                    <img src={item.avatar} alt={item.name} className="w-full h-full object-cover" />
+                                )}
+                            </div>
+                        )}
+
                         <span className="text-[#0D0F10]">{item.name}</span>
                     </div>
                 ))}

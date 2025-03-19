@@ -2,6 +2,7 @@ export type FilterItem = {
     id: number
     name: string
     checked: boolean
+    avatar?: string;
 }
 
 export type Department = FilterItem
