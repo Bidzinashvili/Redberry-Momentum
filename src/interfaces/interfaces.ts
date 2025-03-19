@@ -24,3 +24,15 @@ export interface Status {
     id: number;
     name: string;
 }
+
+export interface Task {
+    id: string;
+    name: string;
+    description: string;
+    due_date: string;
+    status: Status;
+    priority: Priority;
+    department: Department;
+    employee: Employee;
+    total_comments: number;
+}
