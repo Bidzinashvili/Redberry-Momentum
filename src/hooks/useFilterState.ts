@@ -9,6 +9,7 @@ const API_URLS = {
 }
 
 const AUTH_TOKEN = '9e68b0cd-e37e-4a1b-a82d-a5e71bcdcf90'
+const STORAGE_KEY = 'task-dashboard-filters'
 
 export function useFilterState() {
     const [openDropdown, setOpenDropdown] = useState<FilterType>(null)
@@ -19,6 +20,44 @@ export function useFilterState() {
 
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [error, setError] = useState<string | null>(null)
+
+    useEffect(() => {
+        const loadSavedFilters = () => {
+            try {
+                const savedFilters = localStorage.getItem(STORAGE_KEY)
+                if (savedFilters) {
+                    const { departments: savedDepts, priorities: savedPrios, employees: savedEmps } = JSON.parse(savedFilters)
+
+                    if (savedDepts && departments.length > 0) {
+                        setDepartments(departments.map(dept => ({
+                            ...dept,
+                            checked: savedDepts.some((saved: number) => saved === dept.id)
+                        })))
+                    }
+
+                    if (savedPrios && priorities.length > 0) {
+                        setPriorities(priorities.map(prio => ({
+                            ...prio,
+                            checked: savedPrios.some((saved: number) => saved === prio.id)
+                        })))
+                    }
+
+                    if (savedEmps && employees.length > 0) {
+                        setEmployees(employees.map(emp => ({
+                            ...emp,
+                            checked: savedEmps === emp.id
+                        })))
+                    }
+                }
+            } catch (err) {
+                console.error('Error loading saved filters:', err)
+            }
+        }
+
+        if (!isLoading && departments.length > 0 && priorities.length > 0 && employees.length > 0) {
+            loadSavedFilters()
+        }
+    }, [isLoading, departments.length, priorities.length, employees.length])
 
     useEffect(() => {
         const fetchData = async () => {
@@ -105,6 +144,19 @@ export function useFilterState() {
 
     const applyFilters = () => {
         setOpenDropdown(null)
+
+        // Save filters to localStorage
+        const selectedDepartments = departments.filter(d => d.checked).map(d => d.id)
+        const selectedPriorities = priorities.filter(p => p.checked).map(p => p.id)
+        const selectedEmployee = employees.find(e => e.checked)?.id || null
+
+        const filtersToSave = {
+            departments: selectedDepartments,
+            priorities: selectedPriorities,
+            employees: selectedEmployee
+        }
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(filtersToSave))
 
         console.log("Selected departments:", departments.filter(d => d.checked))
         console.log("Selected priorities:", priorities.filter(p => p.checked))
