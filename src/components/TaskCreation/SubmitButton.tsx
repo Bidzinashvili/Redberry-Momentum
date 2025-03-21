@@ -9,13 +9,17 @@ interface Props {
     status_id: number | null;
     employee_id: number | null;
     priority_id: number | null;
+    validateForm: () => boolean
 }
 
-export default function SubmitButton({ name, description, due_date, status_id, employee_id, priority_id }: Props) {
+export default function SubmitButton({ name, description, due_date, status_id, employee_id, priority_id, validateForm }: Props) {
     const router = useRouter()
 
     const handleSubmit = () => {
         if (!status_id || !employee_id || !priority_id) return
+
+        const valid = validateForm()
+        if (!valid) return
 
         axios.post('https://momentum.redberryinternship.ge/api/tasks',
             {

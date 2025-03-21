@@ -30,7 +30,7 @@ export default function page() {
         deadline
     };
 
-    const { errors, validateField } = useValidation({
+    const { errors, validateField, validateForm } = useValidation({
         schema: taskSchema,
         formData
     });
@@ -119,6 +119,7 @@ export default function page() {
                         priority_id={selectedPriority?.id || null}
                         employee_id={selectedEmployee?.id || null}
                         status_id={selectedStatus?.id || null}
+                        validateForm={validateForm}
                     />
                 </div>
             </div>
