@@ -1,57 +1,45 @@
 "use client"
 
-import { useFilterState } from "@/hooks/useFilterState"
 import FilterButton from "./FilterButton"
 import FilterDropdown from "./FilterDropdown"
-import { FilterType } from "./types/types"
+import { useFilter } from "@/hooks/useFilter";
 
 export default function TaskFilter() {
     const {
-        openDropdown,
-        departments,
-        priorities,
-        employees,
-        toggleDropdown,
-        toggleFilter,
+        dropdownOpen,
+        setDropdownOpen,
+        items,
+        handleSelect,
         applyFilters
-    } = useFilterState()
-
-    const getFilterItems = (type: FilterType) => {
-        switch (type) {
-            case 'department': return departments
-            case 'priority': return priorities
-            case 'employee': return employees
-            default: return []
-        }
-    }
+    } = useFilter();
 
     return (
         <div className="mt-[52px] relative">
             <div className="border border-[#DEE2E6] bg-white rounded-[10px] flex justify-between items-center">
                 <FilterButton
                     label="დეპარტამენტი"
-                    isActive={openDropdown === 'department'}
-                    onClick={() => toggleDropdown('department')}
+                    dropdownOpen={dropdownOpen}
+                    setDropdownOpen={setDropdownOpen}
                 />
 
                 <FilterButton
                     label="პრიორიტეტი"
-                    isActive={openDropdown === 'priority'}
-                    onClick={() => toggleDropdown('priority')}
+                    dropdownOpen={dropdownOpen}
+                    setDropdownOpen={setDropdownOpen}
                 />
 
                 <FilterButton
                     label="თანამშრომელი"
-                    isActive={openDropdown === 'employee'}
-                    onClick={() => toggleDropdown('employee')}
+                    dropdownOpen={dropdownOpen}
+                    setDropdownOpen={setDropdownOpen}
                 />
             </div>
 
-            {openDropdown && (
+            {dropdownOpen && (
                 <FilterDropdown
-                    items={getFilterItems(openDropdown)}
-                    filterType={openDropdown}
-                    toggleFilter={toggleFilter}
+                    items={items}
+                    filterType={dropdownOpen}
+                    handleSelect={handleSelect}
                     applyFilters={applyFilters}
                 />
             )}

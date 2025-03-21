@@ -3,20 +3,12 @@
 import "./globals.css";
 
 import Header from "@/components/Header";
-import { clearFiltersOnRouteChange } from "@/utils/clearFiltersOnRouteChange";
-import { usePathname } from "next/navigation";
-import { useEffect } from "react";
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const pathname = usePathname()
-
-  useEffect(() => {
-    clearFiltersOnRouteChange(pathname)
-  }, [pathname])
 
   return (
     <html lang="en">

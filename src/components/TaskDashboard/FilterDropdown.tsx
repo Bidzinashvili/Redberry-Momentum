@@ -2,20 +2,22 @@
 
 import { Check } from "lucide-react"
 import { FilterItem, FilterType } from "./types/types"
+import { useEffect } from "react"
 
 interface FilterDropdownProps {
     items: FilterItem[]
-    filterType: FilterType
-    toggleFilter: (id: number, type: FilterType) => void
+    filterType: 'დეპარტამენტი' | 'პრიორიტეტი' | 'თანამშრომელი'
+    handleSelect: (id: number) => void
     applyFilters: () => void
 }
 
 export default function FilterDropdown({
     items,
     filterType,
-    toggleFilter,
+    handleSelect,
     applyFilters
 }: FilterDropdownProps) {
+
     return (
         <div className="absolute left-0 right-0 top-full z-10 bg-white border border-[#DEE2E6] rounded-[10px] p-4 mt-1 shadow-lg">
             <div className="grid grid-cols-1 gap-2">
@@ -23,12 +25,12 @@ export default function FilterDropdown({
                     <div key={item.id} className="flex items-center gap-2 mb-3">
                         <div
                             className={`w-5 h-5 border border-black rounded flex items-center justify-center cursor-pointer`}
-                            onClick={() => toggleFilter(item.id, filterType)}
+                            onClick={() => handleSelect(item.id)}
                         >
                             {item.checked && <Check size={16} color="black" />}
                         </div>
 
-                        {filterType === 'employee' && (
+                        {filterType === 'თანამშრომელი' && (
                             <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs overflow-hidden">
                                 {item.avatar && (
                                     <img src={item.avatar} alt={item.name} className="w-full h-full object-cover" />
