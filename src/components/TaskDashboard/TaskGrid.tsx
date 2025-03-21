@@ -2,6 +2,7 @@ import { Task } from '@/interfaces/interfaces';
 import React from 'react';
 import TaskCard from './TaskCard';
 import TaskStatusBadge from './TaskStatusBadge';
+import Link from 'next/link';
 
 interface Props {
     tasks: Task[];
@@ -17,7 +18,9 @@ export default function TaskGrid({ tasks }: Props) {
                     <TaskStatusBadge status={status} />
                     <div className='mt-[30px] flex flex-col gap-[30px]'>
                         {tasks.filter(task => task.status.name === status).map(task => (
-                            <TaskCard key={task.id} task={task} />
+                            <Link href={`/task/${task.id}`} key={task.id} >
+                                <TaskCard task={task} />
+                            </Link>
                         ))}
                     </div>
                 </div>

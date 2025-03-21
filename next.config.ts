@@ -2,7 +2,16 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ["momentum.redberryinternship.ge"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "momentum.redberryinternship.ge",
+      },
+      {
+        protocol: "https",
+        hostname: "api.dicebear.com",
+      },
+    ],
   },
 };
 

@@ -18,10 +18,20 @@ export function useFilterState() {
     const [priorities, setPriorities] = useState<FilterItem[]>([])
     const [employees, setEmployees] = useState<FilterItem[]>([])
 
+    const [selectedEmployee, setSelectedEmployee] = useState<number | null>(null)
+
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [error, setError] = useState<string | null>(null)
 
+    const [isMounted, setIsMounted] = useState(false)
+
     useEffect(() => {
+        setIsMounted(true)
+    }, [])
+
+    useEffect(() => {
+        if (!isMounted) return
+
         const loadSavedFilters = () => {
             try {
                 const savedFilters = localStorage.getItem(STORAGE_KEY)
@@ -57,7 +67,7 @@ export function useFilterState() {
         if (!isLoading && departments.length > 0 && priorities.length > 0 && employees.length > 0) {
             loadSavedFilters()
         }
-    }, [isLoading, departments.length, priorities.length, employees.length])
+    }, [isMounted, isLoading, departments.length, priorities.length, employees.length])
 
     useEffect(() => {
         const fetchData = async () => {
@@ -143,25 +153,26 @@ export function useFilterState() {
     }
 
     const applyFilters = () => {
-        setOpenDropdown(null)
+        setOpenDropdown(null);
 
-        // Save filters to localStorage
-        const selectedDepartments = departments.filter(d => d.checked).map(d => d.id)
-        const selectedPriorities = priorities.filter(p => p.checked).map(p => p.id)
-        const selectedEmployee = employees.find(e => e.checked)?.id || null
+        const selectedDepartmentsStorage = departments.filter(d => d.checked).map(d => d.id);
+        const selectedPrioritiesStorage = priorities.filter(p => p.checked).map(p => p.id);
+        const selectedEmployeeStorage = employees.find(e => e.checked)?.id || null;
+
+        setSelectedEmployee(selectedEmployeeStorage);
 
         const filtersToSave = {
-            departments: selectedDepartments,
-            priorities: selectedPriorities,
-            employees: selectedEmployee
-        }
+            departments: selectedDepartmentsStorage,
+            priorities: selectedPrioritiesStorage,
+            employees: selectedEmployeeStorage
+        };
 
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(filtersToSave))
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(filtersToSave));
+    };
 
-        console.log("Selected departments:", departments.filter(d => d.checked))
-        console.log("Selected priorities:", priorities.filter(p => p.checked))
-        console.log("Selected employee:", employees.find(e => e.checked))
-    }
+
+    const selectedDepartments = departments.filter(d => d.checked).map(d => d.id)
+    const selectedPriorities = priorities.filter(p => p.checked).map(p => p.id)
 
     return {
         openDropdown,
@@ -172,6 +183,9 @@ export function useFilterState() {
         error,
         toggleDropdown,
         toggleFilter,
-        applyFilters
+        applyFilters,
+        selectedDepartments,
+        selectedPriorities,
+        selectedEmployee
     }
 }

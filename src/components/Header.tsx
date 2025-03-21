@@ -18,7 +18,7 @@ export default function Header() {
                 <div onClick={() => setIsOpen(true)}>
                     <button className='border-[#8338EC] border-[1px] text-[#212529] py-[10px] px-[20px] rounded-[5px] cursor-pointer'>თანამშრომლის შექმნა</button>
                 </div>
-                <Link href={'/create-task'}>
+                <Link href={'/task/create'}>
                     <button className='bg-[#8338EC] rounded-[5px] text-white py-[10px] px-[20px] cursor-pointer'>შექმენი ახალი დავალება</button>
                 </Link>
             </div>

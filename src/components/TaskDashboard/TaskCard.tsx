@@ -1,9 +1,12 @@
-import { Task } from '@/interfaces/interfaces'
-import Image from 'next/image'
-import React from 'react'
+import { Comment, Task } from '@/interfaces/interfaces';
+import Image from 'next/image';
+import React, { useEffect, useState } from 'react';
+import { format } from 'date-fns';
+import { ka } from 'date-fns/locale'; // Import Georgian locale
+import axios from 'axios';
 
 interface Props {
-    task: Task
+    task: Task;
 }
 
 const departmentDictionary: Record<string, string> = {
@@ -14,28 +17,34 @@ const departmentDictionary: Record<string, string> = {
     "გაყიდვების და მარკეტინგის დეპარტამენტი": "მარკეტინგი",
     "ტექნოლოგიების დეპარტამენტი": "ტექნ.",
     "მედიის დეპარტამენტი": "მედია"
-}
+};
 
 const borderColors: Record<string, string> = {
     "დაბალი": "#08A508",
     "საშუალო": "#FFBE0B",
     "მაღალი": "#FA4D4D"
-}
+};
 
 export default function TaskCard({ task }: Props) {
+    const [badgeColor, setBadgeColor] = useState<string>('#FF66A8');
+    const [totalComments, setTotalComments] = useState(0)
+
+    useEffect(() => {
+        const colors = ['#FF66A8', '#FFD86D', '#89B6FF', '#FD9A6A'];
+        setBadgeColor(colors[Math.floor(Math.random() * colors.length)]);
+    }, []);
+
     const formatDate = (isoDate: string) => {
-        const date = new Date(isoDate);
-        return date.toLocaleDateString("ka-GE", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric"
-        });
+        return format(new Date(isoDate), 'dd MMM yyyy', { locale: ka });
     };
 
-    const generateBadgeColor = () => {
-        const colors = ['#FF66A8', '#FFD86D', '#89B6FF', '#FD9A6A'];
-        return colors[Math.floor(Math.random() * colors.length)];
-    };
+    useEffect(() => {
+        axios.get(`https://momentum.redberryinternship.ge/api/tasks/${task.id}/comments`, { headers: { Authorization: 'Bearer 9e68b0cd-e37e-4a1b-a82d-a5e71bcdcf90' } })
+            .then((res: { data: Comment[] }) => {
+                setTotalComments(res.data.length)
+            })
+            .catch((err) => console.log(err))
+    }, [])
 
     return (
         <div className='cursor-pointer w-[381px] p-[20px] rounded-[15px] border bg-white' style={{ border: `1px solid ${borderColors[task.priority.name]}` }}>
@@ -46,7 +55,7 @@ export default function TaskCard({ task }: Props) {
                         <Image src={task.priority.icon} alt={task.priority.name} width={16} height={16} />
                         <p className='text-[12px] font-medium' style={{ color: `${borderColors[task.priority.name]}` }}>{task.priority.name}</p>
                     </div>
-                    <div className='py-[5px] px-[18.5px] rounded-[15px]' style={{ backgroundColor: generateBadgeColor() }}>
+                    <div className='py-[5px] px-[18.5px] rounded-[15px]' style={{ backgroundColor: badgeColor }}>
                         <p className='text-[12px] text-white'>{departmentDictionary[task.department.name] ?? task.department.name}</p>
                     </div>
                 </div>
@@ -73,10 +82,9 @@ export default function TaskCard({ task }: Props) {
                 </div>
                 <div className='flex gap-[2.5px]'>
                     <Image src={'/comment.svg'} alt='User Avatar' width={20} height={18} />
-                    <p className='text-[14px] text-[#212529]'>{task.total_comments}</p>
+                    <p className='text-[14px] text-[#212529]'>{totalComments}</p>
                 </div>
             </div>
         </div>
-    )
+    );
 }
-
