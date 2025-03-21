@@ -12,7 +12,7 @@ export default function TaskGrid({ tasks }: Props) {
     const statusArr = ['დასაწყები', 'პროგრესში', 'მზად ტესტირებისთვის', 'დასრულებული'] as const;
 
     return (
-        <div className='flex items-start justify-between mt-[80px]'>
+        <div className='flex items-start justify-between mt-[80px] pb-[80px]'>
             {statusArr.map((status) => (
                 <div key={status} className='w-[381px]'>
                     <TaskStatusBadge status={status} />
